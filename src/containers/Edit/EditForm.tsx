@@ -1,15 +1,17 @@
-import React, {useState} from 'react';
-import {INewQuote, TNewQuote} from "../../types";
+import React, { useState } from 'react';
+import { INewQuote, TNewQuote } from "../../types";
 import Spinner from "../../components/Spinner/Spinner";
-import {CATEGORIES} from "../../constants";
+import { CATEGORIES } from "../../constants";
 
 interface Props {
     onSubmit?: (newQuote: INewQuote) => void,
     editPost?: TNewQuote,
 }
-const EditForm:React.FC<Props> = ({editPost, onSubmit}) => {
+
+const EditForm: React.FC<Props> = ({ editPost, onSubmit }) => {
     const [quote, setQuote] = useState<INewQuote>(editPost!);
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
 
     const quoteChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -23,20 +25,26 @@ const EditForm:React.FC<Props> = ({editPost, onSubmit}) => {
     const onFormSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
-
-        onSubmit!({
-           ...quote,
-        });
+        try {
+            onSubmit!({
+                ...quote,
+            });
+            setMessage("Quote updated successfully!");
+        } catch (error) {
+            setMessage("An error occurred. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     let form = (
-        <form onSubmit={onFormSubmit}>
-            <div className="form-group">
-                <label htmlFor="category">Category:</label>
+        <form onSubmit={onFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <label htmlFor="category" style={{ marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Category:</label>
                 <select
                     id="category"
                     name="category"
-                    className="form-control"
+                    style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
                     value={quote.category}
                     onChange={quoteChange}
                 >
@@ -48,28 +56,34 @@ const EditForm:React.FC<Props> = ({editPost, onSubmit}) => {
                     ))}
                 </select>
             </div>
-            <div className="form-group">
-                <label htmlFor="author">Author:</label>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <label htmlFor="author" style={{ marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Author:</label>
                 <input
                     id="author"
                     type="text"
                     name="author"
-                    className="form-control"
+                    style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
                     value={quote.author}
                     onChange={quoteChange}
                 />
             </div>
-            <div className="form-group">
-                <label htmlFor="text">Quote:</label>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <label htmlFor="text" style={{ marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Quote:</label>
                 <textarea
                     id="text"
                     name="text"
-                    className="form-control"
+                    style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '5px', minHeight: '100px' }}
                     value={quote.text}
                     onChange={quoteChange}
                 />
             </div>
-            <button type="submit" className="btn btn-primary mt-3">
+
+            <button
+                type="submit"
+                style={{ padding: '10px 20px', backgroundColor: '#6200ea', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
                 Save
             </button>
         </form>
@@ -80,8 +94,13 @@ const EditForm:React.FC<Props> = ({editPost, onSubmit}) => {
     }
 
     return (
-        <div className="posts-container row mt-2">
-            <div className="col">{form}</div>
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '10px', backgroundColor: '#fff' }}>
+            {message && (
+                <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e0ffe0', color: '#008000', borderRadius: '5px', textAlign: 'center' }}>
+                    {message}
+                </div>
+            )}
+            {form}
         </div>
     );
 };
